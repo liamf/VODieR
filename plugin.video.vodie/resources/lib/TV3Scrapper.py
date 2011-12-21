@@ -53,28 +53,6 @@ class TV3:
             return default
 
     def getVideoDetails(self, url):
-        
-#        yield {'Channel'     : CHANNEL,
-#               'Title'       : CHANNEL,
-#               'Director'    : CHANNEL,
-#               'Genre'       : CHANNEL,
-#               'Plot'        : CHANNEL,
-#               'PlotOutline' : CHANNEL,
-#               'id'          : url,
-#               'url'         : url
-#               }
-#
-#        return
-        
-        # Load and read the URL
-        f    = urllib2.urlopen(url)
-        soup = BeautifulStoneSoup(f)
-        f.close()
-        
-        # Grab the data we need
-        metabase = self.getStringFor(soup, 'meta', 'base')
-        videosrc = self.getStringFor(soup, 'video', 'src').replace('&amp;','&')
-
         yield {'Channel'     : CHANNEL,
                'Title'       : CHANNEL,
                'Director'    : CHANNEL,
@@ -82,9 +60,9 @@ class TV3:
                'Plot'        : CHANNEL,
                'PlotOutline' : CHANNEL,
                'id'          : url,
-               'url'         : '%s playpath=%s' % (metabase, videosrc)
+               'url'         : url
                }
-
+     
     def getMainMenu(self):
 
         # Load and read the URL
@@ -114,6 +92,8 @@ class TV3:
             
     def getEpisodes(self, showID):
         # Load and read the URL
+        # HACK: temp correct the showID
+        showID = showID.replace('http://tv3.ie/','')
         f = urllib2.urlopen(EPISODE_URL % (showID))
         text = f.read()
         f.close()
@@ -128,6 +108,7 @@ class TV3:
             # Default values
             description = 'None'
             link        = 'None'
+            mp4URL      = 'None'
 
             # ListItem properties
             img   = mymatch[1]
@@ -185,15 +166,22 @@ class TV3:
             f2    = urllib2.urlopen(TV3_URL + mymatch[0])
             text2 = f2.read()
 
-            # Get link for the mp4
-            mp4re = 'url: \"(.*?mp4)\"'
+            # Get name of the mp4 file
+            mp4re = 'url: \"mp4:(.*?mp4)\"'
             for mymatch2 in re.findall(mp4re, text2, re.MULTILINE):
                 link = mymatch2
+            
+            # Figure out where we think it is, based on the rtmp URL
+            rtmpre = 'netConnectionUrl: \"rtmp://.*/(content.tv3.*)\"'
+            matches = re.findall(rtmpre, text2, re.MULTILINE)
+            # This way avoids issue where there are zero matches 
+            for match in matches:
+                mp4URL = "http://" + match + link
             
             yield {'Channel'      : CHANNEL,
                     'Thumb'       : img,
                     'Fanart_Image': img,
-                    'url'         : link,
+                    'url'         : mp4URL,
                     'Title'       : title,
                     'mode'        : MenuConstants.MODE_PLAYVIDEO,
                     'Plot'        : description,

@@ -13,6 +13,7 @@ from TVSeriesUtil import Util
 import MenuConstants
 import simplejson as S
 from datetime import date
+import random
 
 try:
     import xbmcaddon
@@ -23,11 +24,11 @@ except ImportError, e:
 
 
 # Player Constants
-SWFURL = 'https://www.magnetwebtv.ie/web/players/jwplayer/player.swf'
+SWFURL = 'https://www.aertv.ie/players/jwplayer/player.swf'
 PAGEURL = 'http://www.rte.ie/player/'
 
 # URL Constants
-MAIN_URL = 'https://www.magnetwebtv.ie/'
+MAIN_URL = 'https://www.aertv.ie/'
 LOGIN_URL = MAIN_URL + 'web/j_spring_security_check'
 LOGOUT_URL = MAIN_URL + 'web/j_spring_security_logout'
 NOWANDNEXT_URL = MAIN_URL + 'web/api/listings/nowandnext'
@@ -36,8 +37,12 @@ DEVICE_WEBUI = 'webui'
 STREAM_URL = MAIN_URL + 'web/api/streams/%s?refresh=false&device=%s'
 
 # Channel Constants
-CHANNEL = 'Magnet WebTV'
-LOGOICON = 'http://www.magnetwebtv.ie/web/img/magnetlogo.png'
+CHANNEL = 'Aer TV'
+LOGOICON = 'https://www.aertv.ie/images/logo.png'
+LOGOURL = 'https://www.aertv.ie/images/logos/'
+
+# To work outside of Ireland
+FORWARDED_FOR_IP = '79.97.%d.%d' % (random.randint(0, 255), random.randint(0, 254)) 
 
 class Magnet:
         
@@ -59,7 +64,9 @@ class Magnet:
         opener = self.login(self.settings['magnet_username'], self.settings['magnet_password'])
         
         # Load read JSON Decode the output
-        resp = opener.open(STREAM_URL % (url, DEVICE_IOS))
+        req = urllib2.Request(STREAM_URL % (url, DEVICE_IOS))
+        req.add_header('X-Forwarded-For', FORWARDED_FOR_IP)
+        resp = opener.open(req)
         data = S.loads(resp.read())
         
         # Build the iOS path (Not used but could be handy)
@@ -120,7 +127,9 @@ class Magnet:
         opener = self.login(self.settings['magnet_username'], self.settings['magnet_password'])
         
         # Load and Decode JSON the output
-        resp = opener.open(NOWANDNEXT_URL)
+        req = urllib2.Request(NOWANDNEXT_URL)
+        req.add_header('X-Forwarded-For', FORWARDED_FOR_IP)
+        resp = opener.open(req)
         nowandnext = S.loads(resp.read())
         resp.close()
         
@@ -130,9 +139,9 @@ class Magnet:
         # Return the TV Channel available
         for channel in nowandnext:
             yield {'Channel' : CHANNEL,
-                   'Thumb'   : LOGOICON,
-                   'url'     : str(channel['channel']['productId']),
-                   'Title'   : self.convertHTML(channel['channel']['displayName']),
+                   'Thumb'   : LOGOURL + str(channel['channel']['id']) + '.png',
+                   'url'     : str(channel['channel']['id']),
+                   'Title'   : self.convertHTML(channel['channel']['name']),
                    'mode'    : MenuConstants.MODE_GETEPISODES}
             
     def getEpisodes(self, showID):
@@ -140,7 +149,9 @@ class Magnet:
         opener = self.login(self.settings['magnet_username'], self.settings['magnet_password'])
         
         # Load and Decode JSON object
-        resp = opener.open(NOWANDNEXT_URL)
+        req = urllib2.Request(NOWANDNEXT_URL)
+        req.add_header('X-Forwarded-For', FORWARDED_FOR_IP)
+        resp = opener.open(req)
         channels = S.loads(resp.read())
         resp.close()
         
@@ -149,10 +160,10 @@ class Magnet:
         
         # Return the shows for this channel
         for channel in channels:
-            if showID == str(channel['channel']['productId']):
+            if showID == str(channel['channel']['id']):
                 for video in channel['videos']:
                     # Calculate Start time
-                    x = video['starttime'] / 1000
+                    x = video['startTime'] / 1000
                     start_seconds = x % 60
                     x /= 60
                     start_minutes = x % 60
@@ -160,7 +171,7 @@ class Magnet:
                     start_hours = x % 24
 
                     # Calculate End Time
-                    x = video['endtime'] / 1000
+                    x = video['endTime'] / 1000
                     end_seconds = x % 60
                     x /= 60
                     end_minutes = x % 60
@@ -186,7 +197,7 @@ class Magnet:
                     
                     yield {'Channel'      : CHANNEL,
                             'Thumb'       : pic,
-                            'url'         : str(video['productId']),
+                            'url'         : str(video['id']),
                             'Title'       : "%s - %s" % (showtime, title),
                             'mode'        : MenuConstants.MODE_PLAYVIDEO,
                             'Plot'        : self.convertHTML(video['description']),
@@ -206,6 +217,7 @@ class Magnet:
         
         req = urllib2.Request(LOGIN_URL)
         req.add_header('User-Agent', USER_AGENT)
+        req.add_header('X-Forwarded-For', FORWARDED_FOR_IP)
 
         opener.open(req, login_data)
         
@@ -222,3 +234,4 @@ if __name__ == '__main__':
         print menu
         for detail in Magnet(False).getVideoDetails(menu['url']):
             print detail
+
