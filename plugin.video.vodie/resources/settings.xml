@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+    <!--RTE-->
+    <category label="30075">
+        <setting id="ads" type="bool" label="30070" default="true" />
+    </category>
+    
+    <!--Magnet TV-->
+    <category label="30085">
+        <setting id="magnet_username" type="text" label="30080" default=""/>
+        <setting id="magnet_password" type="text" option="hidden" label="30081" enable="!eq(-1,)" default=""/>
+		<setting type="lsep" label="You can create an account at magnetWebTv.ie if"/>
+		<setting type="lsep" label="you don't already have one. By doing so you will"/>
+		<setting type="lsep" label="be able to watch all your channels."/>
+    </category>
+    
+</settings>

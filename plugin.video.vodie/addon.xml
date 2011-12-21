@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.vodie"
+       name="VODie - Video On Demand Ireland"
+       version="1.1.3"
+       provider-name="kitesurfing@kitesurfing.ie">
+  <requires>
+    <import addon="xbmc.python" version="1.0"/>
+    <import addon="script.module.simplejson" version="2.0.10"/>
+    <import addon="script.module.beautifulsoup" version="3.0.8"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource"
+            library="default.py">
+        <provides>video audio</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en">Watch Magnet Web TV, An Lar TV and Catchup on RTE, TV3 and TG4 shows</summary>
+    <description lang="en">Watch Magnet Web TV, An Lar TV and Catchup on RTE, TV3 and TG4 shows</description>
+    <platform>all</platform>
+  </extension>
+</addon>

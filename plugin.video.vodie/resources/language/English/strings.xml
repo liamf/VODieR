@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<strings>
+    <string id="30000">VODie</string>
+
+    <!--Channels-->
+    <string id="31001">RTE</string>
+    <string id="31002">TV3</string>
+    <string id="31003">TG4</string>
+    <string id="31004">RTE News</string>
+    <string id="31005">Sky News Ireland</string>
+    
+    <!--RTE Features-->
+    <string id="32000">Features</string>
+    <string id="32001">Latest</string>
+    <string id="32002">Last Chance</string>
+    <string id="32003">Search A-Z</string>
+    <string id="32004">Search By Category</string>
+
+    <!--TV3 Features-->
+    <string id="33001">All Shows</string>
+    <string id="33002">News</string>
+    
+    <!--Categories-->
+    <string id="30001">Latest</string>
+    <string id="30002">Last Chance2</string>
+    <string id="30003">Search</string>
+    <string id="30004">Search</string>
+    <string id="30005">Favorites</string>
+    
+    <!--Settings-->
+    <string id="30075">Playing Videos</string>
+    <string id="30070">Include Ads</string>
+    
+    <string id="30085">Magnet Web TV</string>
+    <string id="30080">Username</string>
+    <string id="30081">Password</string>
+    
+</strings>

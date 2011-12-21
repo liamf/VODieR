@@ -1,0 +1,23 @@
+[B]Version 1.1.1[/B]
+
+- Bug Fixes
+
+[B]Version 1.1.0[/B]
+
+- Bug Fixes
+- Added Magnet Web TV support for registered users.
+
+[B]Version 1.0.1[/B]
+
+- Fixed parent folder for Zip Installation
+
+[B]Version 1.0.0[/B]
+
+First release of VODie with version 1.0.0
+It includes:
+ - RTE Player
+ - RTE Live
+ - TV3 Player
+ - TG4 Player
+ - Common Favorite Programs (RTE, TV3 and TG4)
+ - Last 10 Recently Browsed Programs
