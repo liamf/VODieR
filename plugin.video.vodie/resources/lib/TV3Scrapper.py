@@ -93,7 +93,7 @@ class TV3:
     def getEpisodes(self, showID):
         # Load and read the URL
         # HACK: temp correct the showID
-        showID = showID.replace('http://tv3.ie/','')
+        showID = showID.replace('http://www.tv3.ie/','')
         f = urllib2.urlopen(EPISODE_URL % (showID))
         text = f.read()
         f.close()
