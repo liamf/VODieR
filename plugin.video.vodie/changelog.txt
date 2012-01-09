@@ -1,3 +1,6 @@
+[B]Version 1.1.3b[/B]
+- Fixed TV2 scraper for recent change to TV3 website
+
 [B]Version 1.1.3a[/B]
 - Imported nickhx/t0mm0 patch for MagnetWebTV
 - Fixed TV3 scraper for recent changes to TV3 website
