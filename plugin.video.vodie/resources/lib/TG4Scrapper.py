@@ -11,14 +11,16 @@ from BeautifulSoup import SoupStrainer, MinimalSoup as BeautifulSoup, BeautifulS
 import urllib, urllib2
 import MenuConstants
 
-# URL Constants
-TG4_URL          = 'http://live.tg4.ie/%s'
-MAINURL          = TG4_URL % ('main.aspx?level=%s')
-VIDEO_DETAIL_URL = TG4_URL % ('ajax_controller.aspx?cmd=play&level=&deliverymethod=stream&contentid=%s&istrailer=false&priceid=0&machineid=&bitrate=-1&deliverdrm=false&silent=false&format=mp4&subscriberObjectIdForRegisterPlaybackAction=0&subscriptionpurchase=false')
+# URL Constants http://www.tg4.ie/en/programmes.html
+
+TG4_URL          = 'http://www.tg4.ie/en/programmes'
+MAINURL          = TG4_URL 
+VIDEO_DETAIL_URL = TG4_URL 
+#VIDEO_DETAIL_URL = TG4_URL % ('ajax_controller.aspx?cmd=play&level=&deliverymethod=stream&contentid=%s&istrailer=false&priceid=0&machineid=&bitrate=-1&deliverdrm=false&silent=false&format=mp4&subscriberObjectIdForRegisterPlaybackAction=0&subscriptionpurchase=false')
 
 # Channel constants
 CHANNEL = 'TG4'
-LOGOICON = 'http://www.tg4.ie/bearla/pics/tg4-logo.gif'
+LOGOICON = 'http://www.tg4.ie/assets/templates/tg4/images/logo-trans.png'
 
 class TG4:
 
@@ -64,20 +66,20 @@ class TG4:
 
     def getMainMenu(self, level = '', mode = MenuConstants.MODE_CREATEMENU):
         # Load and Read URL
-        f = urllib2.urlopen(MAINURL%(level))
+        f = urllib2.urlopen(MAINURL)
         text = f.read()
-        f.close()
         
-        PAGE_REGEXP = '<div id="pageMenu">(.*?)</div>'
-        LINK_REGEXP = '<a href="main.aspx\?level=(.*?)"( class="active")?>(.*?)</a>'
-        for mymatch in re.findall(PAGE_REGEXP, text):
-            for mymatch2 in re.findall(LINK_REGEXP, mymatch):
+        PAGE_REGEXP = '<div id="inner_content1" class="content_box">(.*)</div>'
+        PROG_REGEXP = '<div id="schedule_Holder">(.*?)<div class="schedule_Cell1"><a href="(.*?)"><img src="(.*?)" alt="" class="imgBdr" /></a></div>(.*?)<div class="schedule_Cell2"><b>(.*?)</b></div>(.*?)<div class="schedule_Cell6">(.*?)</div>(.*?)</div>'
+        
+        for mymatch in re.findall(PAGE_REGEXP, text, re.DOTALL):
+            for progMatch in re.findall(PROG_REGEXP, mymatch, re.DOTALL):
                 yield {'Channel'  : CHANNEL,
-                       'Thumb'    : LOGOICON,
-                       'url'      : mymatch2[0],
-                       'Title'    : str(mymatch2[2]),
-                       'mode'     : mode,
-                       'Plot'     : 'Alexis'}
+                       'Thumb'    : progMatch[2],
+                       'url'      : progMatch[1],
+                       'Title'    : str(progMatch[4]),
+                       'mode'     : MenuConstants.MODE_GETEPISODES,
+                       'Plot'     : progMatch[6]}
 
     def getMenuItems(self, type):
         if type == MenuConstants.MODE_MAINMENU:
@@ -86,8 +88,10 @@ class TG4:
             return self.getMainMenu(level = type, mode = MenuConstants.MODE_GETEPISODES)
         
     def getEpisodes(self, showID):
+        
+        print showID
         # Load and Read URL
-        f = urllib2.urlopen(MAINURL%(showID))
+        f = urllib2.urlopen(MAINURL)
         text = f.read()
         f.close()
         
