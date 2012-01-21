@@ -14,7 +14,8 @@ import MenuConstants
 import simplejson as S
 
 # Player Constants
-SWFURL = 'http://www.rte.ie/player/assets/player_439.swf'
+# Check http://www.rte.ie/player/config/config.xml to get the correct version for this
+SWFURL = 'http://www.rte.ie/player/assets/player_452.swf'
 PAGEURL = 'http://www.rte.ie/player/'
 
 # URL Constants
