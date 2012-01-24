@@ -15,7 +15,8 @@ import simplejson as S
 
 # Player Constants
 # Check http://www.rte.ie/player/config/config.xml to get the correct version for this
-SWFURL = 'http://www.rte.ie/player/assets/player_452.swf'
+# And Pay attention next time ... it's the bloody player version, not the main version, which is important
+SWFURL = 'http://www.rte.ie/player/assets/player_456.swf'
 PAGEURL = 'http://www.rte.ie/player/'
 
 # URL Constants
@@ -138,6 +139,8 @@ class RTE:
         
         published  = self.getStringFor(entry, 'published')
         plot       = self.getStringFor(entry, 'content')
+        # This doesn't seem to make any difference
+        # Plus, it's often incorrect (for recordings in multiple parts)
         duration   = self.getStringFor(entry, 'rte:duration','formatted')
         rating     = self.getStringFor(entry, 'media:rating')
         copyright  = self.getStringFor(entry, 'media:copyright')
@@ -162,6 +165,7 @@ class RTE:
                 partre = '\_part(\d)\_'
                 partMatches = re.findall(partre, mp4url)
                 if len(partMatches) > 0:
+                    duration = str(content['rte:end'])
                     newtitle = '%s - Part %s' % (title, partMatches[0])
                 else:
                     newtitle = title
@@ -239,9 +243,10 @@ class RTE:
             published = self.getStringFor(item, 'published')
             desc =  self.getStringFor(item, 'media:description')
             thumb =  self.getStringFor(item, 'media:thumbnail', 'url', LOGOICON)
+            # Duration doesn't seem to make any difference ... 
             duration = str(int(self.getStringFor(item, 'rte:duration','ms'))/1000/60)
-
-            yield {'plotoutline'   : title,
+            
+            yield { 'PlotOutline'  : title,
                     'Duration'     : duration,
                     'Studio'       : CHANNEL,
                     'Year'         : int("%s" % (published[ : 4 ])),
