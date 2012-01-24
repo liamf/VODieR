@@ -1,5 +1,11 @@
+[B]Version 1.1.3e[/B]
+- Cleaner logo
+
+[B]Version 1.1.3d[/B]
+- Fixed RTE scraper for recent change to RTE website
+
 [B]Version 1.1.3b[/B]
-- Fixed TV2 scraper for recent change to TV3 website
+- Fixed TV3 scraper for recent change to TV3 website
 
 [B]Version 1.1.3a[/B]
 - Imported nickhx/t0mm0 patch for MagnetWebTV
