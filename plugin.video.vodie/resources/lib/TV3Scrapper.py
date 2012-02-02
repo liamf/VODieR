@@ -70,7 +70,7 @@ class TV3:
         text = f.read()
         f.close()
 
-        REGEXP = '<a href="(.*?)" class="dropDown" title="(.*?)">(.*?)</a>'    
+        REGEXP = '<a href="(?:http\://.+?/)?(.*?)" class="dropDown" title="(.*?)">(.*?)</a>'    
         for mymatch in re.findall(REGEXP, text):
             title = str(mymatch[1])
             
@@ -91,9 +91,6 @@ class TV3:
                        'mode'    : MenuConstants.MODE_GETEPISODES}
             
     def getEpisodes(self, showID):
-        # Load and read the URL
-        # HACK: temp correct the showID
-        showID = showID.replace('http://www.tv3.ie/','')
         f = urllib2.urlopen(EPISODE_URL % (showID))
         text = f.read()
         f.close()
@@ -102,8 +99,8 @@ class TV3:
         for mymatch in re.findall(TITLEREGEXP, text, re.MULTILINE):
             the_title = mymatch.strip()
         
-        REGEXP = '^<a class="whiteLink" href="(videos.php\?video=.*?&date=(\d\d\d\d-\d\d-\d\d)&date_mode=&page=1&show_cal=\d*&newspanel=&showspanel=&web_only=&full_episodes=)">\s+<img src=(.*?) height="84" alt="(.*?)" title="(.*?)"'
-        REGEXP = '<div id="panel_video_menu_entry"onclick="window.open\(\'(.*?)\',\'_self\'\)" onMouseOver="style.cursor=\'pointer\'">\s+<p class="video_menu_entry"><img class="float_left" src="(.*?)" width="116" height="64" alt="" border="0">\s+<strong>(.*?)</strong>\s+<br />(.*?)</p>'
+        # REGEXP = '<div id="panel_video_menu_entry"onclick="window.open\(\'(.*?)\',\'_self\'\)" onMouseOver="style.cursor=\'pointer\'">\s+<p class="video_menu_entry"><img class="float_left" src="(.*?)" width="116" height="64" alt="" border="0">\s+<strong>(.*?)</strong>\s+<br />(.*?)</p>'
+        REGEXP = '<div id="panel_video_menu_entry"onclick="window.open\(\'(.*?)\',\'_self\'\)" onMouseOver="style.cursor=\'pointer\'">\s+.*src="(.*?)".*\s+<strong>(.*?)</strong>\s+<br />(.*?)\s*.*</p>'
         for mymatch in re.findall(REGEXP, text, re.MULTILINE):
             # Default values
             description = 'None'
