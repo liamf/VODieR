@@ -1,0 +1,5 @@
+A couple of .JSON files, currently served from xbmc-video.googlecode.com
+
+Stashed here in case the googlecore repository disappears and/or we need to change these.
+
+These are references in the VODie plugin code as KNOWN_RTE_SHOWS_URL and KNOWN_TV3_SHOWS_URL
