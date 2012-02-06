@@ -160,7 +160,7 @@ class TV3:
             year = 2011
 
             # Load the URL for this episode
-            f2    = urllib2.urlopen(TV3_URL + mymatch[0])
+            f2    = urllib2.urlopen(TV3_URL + mymatch[0], "age_ok=1")
             text2 = f2.read()
 
             # Get name of the mp4 file
