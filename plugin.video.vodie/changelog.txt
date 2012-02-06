@@ -1,3 +1,6 @@
+[B] Version 1.1.3f[/B]
+- flz fix for 18-rated TV3 episodes
+
 [B]Version 1.1.3e[/B]
 - Cleaner logo
 
