@@ -73,6 +73,8 @@ class Channels:
             return Magnet().getMainMenu(), True
         elif channel == ShoutcastRadioScrapper.CHANNEL:
             return ShoutcastRadio().getMainMenu(), True
+        elif channel == AnlarScrapper.CHANNEL:
+            return Anlar().getMainMenu(), True
             
     def getEpisodes(self, channel, showID):
         if channel == RTEScrapper.CHANNEL:
