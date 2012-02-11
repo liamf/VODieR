@@ -1,6 +1,7 @@
 [B] Version 1.1.3f[/B]
 - flz fix for 18-rated TV3 episodes
 - updated AnLar scraper for several channels
+- rewrote AerTV (formerly Magnet) plugin for new website
 
 [B]Version 1.1.3e[/B]
 - Cleaner logo

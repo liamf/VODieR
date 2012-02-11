@@ -23,7 +23,7 @@ ANLARLOGO = 'http://anlar.tv/images/stories/logo1.png'
 
 class Anlar:
     def __init__(self):
-        print "Initialising An Lar"
+        pass
 
     def getChannelDetail(self):
 
@@ -51,8 +51,6 @@ class Anlar:
         REGEXP = 'href="(.*)".*\s+<span>.*\s+([^\t]*)\s*.*\s+</span>'
         allmatches = re.findall(REGEXP, str(divs[1]), re.MULTILINE) 
         for match in allmatches:
-            print match[0]
-            print match[1]
             yield {'Channel' : CHANNEL,
                    'Thumb'   : ANLARLOGO,
                    'url'     : match[0],

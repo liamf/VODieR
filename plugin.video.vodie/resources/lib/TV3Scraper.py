@@ -32,7 +32,6 @@ class TV3:
         page = urllib2.urlopen(KNOWN_TV3_SHOWS_URL)
         #page = open('../../xml/tv3shows.json', 'r')
         self.KNOWN_TV3_SHOWS = S.load(page)
-        print len(self.KNOWN_TV3_SHOWS)
 
     def getChannelDetail(self):
         return {'Channel'  : CHANNEL,
@@ -216,7 +215,6 @@ class TV3:
                 REGEXP = '<div id="content" style="background-image: url\((.*?)\)">'
                 for mymatch in re.findall(REGEXP, text, re.MULTILINE):
                     fanart = mymatch
-                    print fanart
                     self.KNOWN_TV3_SHOWS[key]['Fanart_Image'] = fanart
 
         S.dump(self.KNOWN_TV3_SHOWS, f, indent=4)

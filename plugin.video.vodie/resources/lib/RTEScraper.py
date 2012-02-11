@@ -82,7 +82,6 @@ class RTE:
         try:
             page = urllib2.urlopen(KNOWN_RTE_SHOWS_URL)
             self.KNOWN_RTE_SHOWS = S.load(page)
-            print len(self.KNOWN_RTE_SHOWS)
         except:
             self.KNOWN_RTE_SHOWS = {}
         

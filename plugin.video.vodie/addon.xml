@@ -2,7 +2,7 @@
 <addon id="plugin.video.vodie"
        name="VODie - Video On Demand Ireland"
        version="1.1.3f"
-       provider-name="kitesurfing@kitesurfing.ie">
+       provider-name="kitesurfing@kitesurfing.ie, liam.friel@gmail.com">
   <requires>
     <import addon="xbmc.python" version="1.0"/>
     <import addon="script.module.simplejson" version="2.0.10"/>
@@ -13,8 +13,8 @@
         <provides>video audio</provides>
   </extension>
   <extension point="xbmc.addon.metadata">
-    <summary lang="en">Watch Magnet Web TV, An Lar TV and Catchup on RTE, TV3 and TG4 shows</summary>
-    <description lang="en">Watch Magnet Web TV, An Lar TV and Catchup on RTE, TV3 and TG4 shows</description>
+    <summary lang="en">Watch AerTV, An Lar TV and Catchup on RTE, TV3 and TG4 shows</summary>
+    <description lang="en">Watch AerTV, An Lar TV and Catchup on RTE, TV3 and TG4 shows</description>
     <platform>all</platform>
   </extension>
 </addon>

@@ -89,7 +89,6 @@ class TG4:
         
     def getEpisodes(self, showID):
         
-        print showID
         # Load and Read URL
         f = urllib2.urlopen(MAINURL)
         text = f.read()
