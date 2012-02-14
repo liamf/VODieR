@@ -72,14 +72,17 @@ class AerTV(BrightcoveBaseChannel):
     # Not really the URL passed in, just the slug name
     def getVideoDetails(self, stub):
         
+        self.login()
+        
         (opener, req) = self.makeOpenerAndRequest()
         
-        # Ask 
         # Returns a JSON data array, sorta. Wrapped in "()" for some reason
         request_data = urllib.urlencode({'source':'player', 'type':'name', 'val':stub})
         f = opener.open(req, request_data)
         stuff = f.read()
         f.close()        
+        
+        self.logout()
         
         playerJSON = S.loads(stuff[1:-1])        
               
@@ -123,6 +126,8 @@ class AerTV(BrightcoveBaseChannel):
         # Load up the AerTV page, request the EPG data
         # This is overkill, but allows us to build the full channel list easily, and allows us to fetch channel logos and so on
         
+        self.login()
+        
         (opener, req) = self.makeOpenerAndRequest()
 
         # This is what we ask for: EPG data.
@@ -134,9 +139,8 @@ class AerTV(BrightcoveBaseChannel):
                 
         epgJSON = S.loads(stuff[1:-1])
 
-        for channelEntry in epgJSON['data']:
-            print channelEntry['channel']['slug'].encode("utf-8")
-            
+        self.logout()
+           
         for channelEntry in epgJSON['data']:
                yield {'Channel' : CHANNEL,
                       'Thumb'   : channelEntry['channel']['logo'].encode("utf-8"),
@@ -179,13 +183,48 @@ class AerTV(BrightcoveBaseChannel):
                 'rt' : 'RUSSIATODAY', 
                 'rtejr' : 'RTEjunior'
                 }.get(stub, "RTE")
+                
+    def login(self):
+        # If the user has set his settings, use them
+        # Otherwise, do nothing ...
+        if self.settings['aertv_username']:
+            (opener, req) = self.makeOpenerAndRequest()
+        
+            # Returns a JSON data array, sorta. Wrapped in "()" for some reason
+            request_data = urllib.urlencode({'frontend':'true', 'opt':'doLogin', 'userid': self.settings['aertv_username'], 'pwd': self.settings['aertv_password']})
+        
+            f = opener.open(req, request_data)
+            stuff = f.read()
+            f.close()
+            
+            # Could parse the JSON but just ignore for now 
+        else:
+            pass
+        
+    
+    def logout(self):
+        # If the user has set his settings, use them
+        # Otherwise, do nothing
+        if self.settings['aertv_username']:
+            (opener, req) = self.makeOpenerAndRequest()
+        
+            # Returns a JSON data array, sorta. Wrapped in "()" for some reason
+            request_data = urllib.urlencode({'frontend':'true', 'opt':'destroySession'})
+        
+            f = opener.open(req, request_data)
+            stuff = f.read()
+            f.close()
+            
+            # Could parse the JSON but just ignore for now 
+        else:
+            pass
                                                   
 if __name__ == '__main__':
-    for menu in Magnet(False).getMainMenu():
+    for menu in AerTV(False).getMainMenu():
         print menu
         
-    for menu in Magnet(False).getEpisodes('9'):
+    for menu in AerTV(False).getEpisodes('9'):
         print menu
-        for detail in Magnet(False).getVideoDetails(menu['url']):
+        for detail in AerTV(False).getVideoDetails(menu['url']):
             print detail
 

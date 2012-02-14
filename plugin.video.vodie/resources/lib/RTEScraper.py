@@ -107,9 +107,14 @@ class RTE:
                 else:
                     pic = LOGOICON
             except:
-                pic = LOGOICON
-                    
-            yield { "id": id, "title":title, "thumb":str(pic)}
+                pic = LOGOICON                    
+
+            if type == "live":
+                # For "live" items, just yield when Now-next is "NOW"
+                if item.find(term="NOW"):
+                    yield { "id": id, "title":title, "thumb":str(pic)}                 
+            else:
+                yield { "id": id, "title":title, "thumb":str(pic)}
 
 
     def getChannelDetail(self):
@@ -230,14 +235,40 @@ class RTE:
                 CATYMENU] 
 
 
-    def getEpisodes(self, showID):
-        page = urllib2.urlopen(PROGRAMME_URL + showID)
+    def getEpisodes(self, combinedShowID):
+        
+        # A bit hacky ...
+        # Split into "title" style id and URL
+        splitString = re.findall('(.*)__(.*)',combinedShowID)
+        titleShowID = str(splitString[0][0])
+        urlShowID = str(splitString[0][1])
+        
+        print "now getting the episodes for " + titleShowID
+        print PROGRAMME_URL + titleShowID
+        dbg = urllib2.urlopen(PROGRAMME_URL + titleShowID)
+        fred = dbg.read()
+        print fred
+        dbg.close()
+        
+        # page = urllib2.urlopen(PROGRAMME_URL + showID)
+        page = urllib2.urlopen(PROGRAMME_URL + titleShowID)
         soup = BeautifulStoneSoup(page, selfClosingTags=['link','category','media:player','media:thumbnail'])
         page.close()
         
         items = soup.findAll('entry')
+        if not items:
+            # OK, that didn't work.
+            # Just try the straight URL id
+            page = urllib2.urlopen(urlShowID)
+            soup = BeautifulStoneSoup(page, selfClosingTags=['link','category','media:player','media:thumbnail'])
+            page.close()            
+            items = soup.findAll('entry')
+            
         for item in items:
-            link = self.getStringFor(item, 'id')
+            #link = self.getStringFor(item, 'id')
+            # This finds the entire element ... get the bit we want
+            linkElement = item.find(attrs={'type' : 'application/atom+xml'})
+            mymatch = re.findall('href="(.*)"' , str(linkElement)) 
             title = self.getStringFor(item, 'title')
             published = self.getStringFor(item, 'published')
             desc =  self.getStringFor(item, 'media:description')
@@ -252,7 +283,7 @@ class RTE:
                     'Date'         : "%s-%s-%s" % ( published[ 8 : 10], published[ 5 : 7 ], published[ : 4 ]),
                     'Thumb'        : thumb,
                     'Channel'      : CHANNEL,
-                    'url'          : link,
+                    'url'          : mymatch[0],
                     'Title'        : title,
                     'mode'         : MenuConstants.MODE_PLAYVIDEO,
                     'Plot'         : desc
@@ -273,7 +304,7 @@ class RTE:
                        'Channel': CHANNEL,
                        'Thumb':show['thumb'],
                        'mode':mode,
-                       'url':urllib.quote(show['title']),
+                       'url': urllib.quote(show['title']) + "__" + show['id']
                        #'Fanart_Image':fanart
                        }
                         
