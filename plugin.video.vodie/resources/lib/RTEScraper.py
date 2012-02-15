@@ -16,9 +16,8 @@ import MenuConstants
 import simplejson as S
 
 # Player Constants
-# Check http://www.rte.ie/player/config/config.xml to get the correct version for this
-# And Pay attention next time ... it's the bloody player version, not the main version, which is important
-SWFURL = 'http://www.rte.ie/player/assets/player_456.swf'
+CONFIGURL = 'http://www.rte.ie/player/config/config.xml'
+DEFAULTSWFURL = 'http://www.rte.ie/player/assets/player_456.swf'
 PAGEURL = 'http://www.rte.ie/player/'
 
 # URL Constants
@@ -81,6 +80,8 @@ CATYMENU =      {'Thumb'    : LOGOICON,
 
 class RTE:    
     def __init__(self):
+        # We'll try to keep this up to date automatically, but this is a good starting guess
+        self.SWFURL = DEFAULTSWFURL
         try:
             page = urllib2.urlopen(KNOWN_RTE_SHOWS_URL)
             self.KNOWN_RTE_SHOWS = S.load(page)
@@ -136,7 +137,21 @@ class RTE:
             print "Error: Cannot find tagName: %s in %s"%(tagName, parent)
             return default
         
+    def updateSWFURL(self):
+        f = urllib2.urlopen(CONFIGURL)
+        text = f.read()
+        f.close()
+        
+        try:
+            for mymatch in re.findall('Player version="(.*?)"', text, re.MULTILINE):
+                self.SWFURL = 'http://www.rte.ie/player/assets/player_%s.swf' % mymatch
+        except:
+            pass        
+        
     def getVideoDetails(self, url, includeAds = True):
+    
+        self.updateSWFURL()
+        
         page = urllib2.urlopen(url)
         soup = BeautifulStoneSoup(page, selfClosingTags=['link','category','media:player','media:thumbnail','rte:valid', 'rte:duration', 'rte:statistics'])
         page.close()
@@ -164,7 +179,7 @@ class RTE:
                 # Build the RTMP url for XBMC to play the Stream
                 RTE_RTMPE_SERVER = str(content['rte:server'])
                 RTE_APP = 'rtevod/'
-                mp4url = '%s app=%s swfUrl=%s swfVfy=1 playpath=%s'%(RTE_RTMPE_SERVER, RTE_APP, SWFURL, str(content['url'])[len(RTE_RTMPE_SERVER):])
+                mp4url = '%s app=%s swfUrl=%s swfVfy=1 playpath=%s'%(RTE_RTMPE_SERVER, RTE_APP, self.SWFURL, str(content['url'])[len(RTE_RTMPE_SERVER):])
                 
                 # Grab the Part number to add it to the Title.
                 # Streams are split into parts due to ads break
@@ -202,7 +217,7 @@ class RTE:
             elif content['rte:format'] == 'live':
                 RTE_RTMPE_SERVER = str(content['rte:server'])
                 RTE_APP = 'live'
-                mp4url = "%s playpath=%s swfUrl=%s swfVfy=1 app=%s pageUrl=%s live=true" % (RTE_RTMPE_SERVER, str(content['url'])[len(RTE_RTMPE_SERVER):], SWFURL, RTE_APP, PAGEURL)
+                mp4url = "%s playpath=%s swfUrl=%s swfVfy=1 app=%s pageUrl=%s live=true" % (RTE_RTMPE_SERVER, str(content['url'])[len(RTE_RTMPE_SERVER):], self.SWFURL, RTE_APP, PAGEURL)
                 yield {'Channel'      : CHANNEL,
                        'TVShowTitle'  : content['url'],
                        'Title'        : urllib.unquote(content['url']),
