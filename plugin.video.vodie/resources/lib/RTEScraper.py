@@ -3,6 +3,8 @@
 """
     VODie
     kitesurfing@kitesurfing.ie
+    
+    modified: liam.friel@gmail.com
 """
 
 import re
@@ -242,15 +244,7 @@ class RTE:
         splitString = re.findall('(.*)__(.*)',combinedShowID)
         titleShowID = str(splitString[0][0])
         urlShowID = str(splitString[0][1])
-        
-        print "now getting the episodes for " + titleShowID
-        print PROGRAMME_URL + titleShowID
-        dbg = urllib2.urlopen(PROGRAMME_URL + titleShowID)
-        fred = dbg.read()
-        print fred
-        dbg.close()
-        
-        # page = urllib2.urlopen(PROGRAMME_URL + showID)
+               
         page = urllib2.urlopen(PROGRAMME_URL + titleShowID)
         soup = BeautifulStoneSoup(page, selfClosingTags=['link','category','media:player','media:thumbnail'])
         page.close()
@@ -265,7 +259,6 @@ class RTE:
             items = soup.findAll('entry')
             
         for item in items:
-            #link = self.getStringFor(item, 'id')
             # This finds the entire element ... get the bit we want
             linkElement = item.find(attrs={'type' : 'application/atom+xml'})
             mymatch = re.findall('href="(.*)"' , str(linkElement)) 
@@ -290,6 +283,11 @@ class RTE:
                     }
             
     def getMenuItems(self, type, params = '', mode = MenuConstants.MODE_GETEPISODES):
+        # the problem is in here
+        # for some shows which have several episodes, the correct thing to return is the title (like here)
+        # but for some, it seems like the show['id'] would be better
+        # this would allow us to find the correct episodes
+        # so what we need to do is return both and sort it out when getting the episode
         for show in self.getShows(type, params):
             if type == LIVE:
                 yield {'Title':show['title'],

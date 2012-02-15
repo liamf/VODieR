@@ -1,3 +1,7 @@
+[B] Version 1.1.3g[/B]
+- fix for RTE "Live" content, handles Now/Next better
+- fix for some RTE Sports events not playing back
+
 [B] Version 1.1.3f[/B]
 - flz fix for 18-rated TV3 episodes
 - updated AnLar scraper for several channels

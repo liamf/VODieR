@@ -13,8 +13,8 @@
         <provides>video audio</provides>
   </extension>
   <extension point="xbmc.addon.metadata">
-    <summary lang="en">Watch AerTV, An Lar TV and Catchup on RTE, TV3 and TG4 shows</summary>
-    <description lang="en">Watch AerTV, An Lar TV and Catchup on RTE, TV3 and TG4 shows</description>
+    <summary lang="en">Watch AerTV, An Lar TV and Catchup on RTE and TV3 shows</summary>
+    <description lang="en">Watch AerTV, An Lar TV and Catchup on RTE and TV3 shows</description>
     <platform>all</platform>
   </extension>
 </addon>

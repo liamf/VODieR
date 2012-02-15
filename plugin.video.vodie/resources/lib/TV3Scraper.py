@@ -3,6 +3,9 @@
 """
     VODie
     kitesurfing@kitesurfing.ie
+
+    
+    modified: liam.friel@gmail.com
 """
 
 import re
@@ -98,7 +101,6 @@ class TV3:
         for mymatch in re.findall(TITLEREGEXP, text, re.MULTILINE):
             the_title = mymatch.strip()
         
-        # REGEXP = '<div id="panel_video_menu_entry"onclick="window.open\(\'(.*?)\',\'_self\'\)" onMouseOver="style.cursor=\'pointer\'">\s+<p class="video_menu_entry"><img class="float_left" src="(.*?)" width="116" height="64" alt="" border="0">\s+<strong>(.*?)</strong>\s+<br />(.*?)</p>'
         REGEXP = '<div id="panel_video_menu_entry"onclick="window.open\(\'(.*?)\',\'_self\'\)" onMouseOver="style.cursor=\'pointer\'">\s+.*src="(.*?)".*\s+<strong>(.*?)</strong>\s+<br />(.*?)\s*.*</p>'
         for mymatch in re.findall(REGEXP, text, re.MULTILINE):
             # Default values
@@ -156,7 +158,7 @@ class TV3:
                 title = the_title + ' - ' + datestr
                 datestr = date.today().strftime("%d-%m-%Y")
                 
-            year = 2011
+            year = 2012
 
             # Load the URL for this episode
             f2    = urllib2.urlopen(TV3_URL + mymatch[0], "age_ok=1")
@@ -221,9 +223,6 @@ class TV3:
         f.close()
 
 if __name__ == '__main__':
-
-#    TV3().generateShowsAndSave()
-#    exit(1)
 
     items = TV3().getMainMenu()
     
