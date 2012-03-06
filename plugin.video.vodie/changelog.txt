@@ -1,4 +1,7 @@
 [B] Version 1.1.3g[/B]
+- fix for TV3 site redesign
+
+[B] Version 1.1.3g[/B]
 - fix for RTE "Live" content, handles Now/Next better
 - fix for some RTE Sports events not playing back
 

@@ -145,6 +145,7 @@ class Main:
         self.getSettings()
         
         # Initialize convenience constants
+
         self.ADDON_ID = os.path.basename(os.getcwd())
         self.ADDON = xbmcaddon.Addon(id = self.ADDON_ID)
         self.ADDON_DATA_PATH = xbmc.translatePath(self.ADDON.getAddonInfo("Profile"))

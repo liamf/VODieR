@@ -29,7 +29,7 @@ __plugin__  = "VODie"
 __author__  = "kitesurfing@kitesurfing.ie, liam.friel@gmail.com"
 __url__     = "http://code.google.com/p/xbmc-vodie/"
 __svn_url__ = "http://xbmc-vodie.googlecode.com/svn/trunk/"
-__version__ = "1.1.3g"
+__version__ = "1.1.3h"
 
 print "[PLUGIN] '%s: version %s' initialized!" % (__plugin__, __version__)
 

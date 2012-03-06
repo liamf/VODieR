@@ -3,7 +3,6 @@
 """
     VODie
     kitesurfing@kitesurfing.ie
-
     
     modified: liam.friel@gmail.com
 """
@@ -20,10 +19,8 @@ import simplejson as S
 # Url Constants
 KNOWN_TV3_SHOWS_URL  = 'http://xbmc-vodie.googlecode.com/svn/trunk/plugin.video.vodie/xml/tv3shows.json'
 TV3_URL      = 'http://www.tv3.ie/'
-#MAINURL      = TV3_URL + 'includes/ajax/video_all_shows.php'
 MAINURL      = TV3_URL + 'index.php'
 
-#EPISODE_URL  = TV3_URL + 'videos.php?locID=%s'
 EPISODE_URL  = TV3_URL + 'shows.php?request=%s'
 
 # Channel Constants
@@ -93,6 +90,7 @@ class TV3:
                        'mode'    : MenuConstants.MODE_GETEPISODES}
             
     def getEpisodes(self, showID):
+        
         f = urllib2.urlopen(EPISODE_URL % (showID))
         text = f.read()
         f.close()
@@ -101,67 +99,33 @@ class TV3:
         for mymatch in re.findall(TITLEREGEXP, text, re.MULTILINE):
             the_title = mymatch.strip()
         
-        REGEXP = '<div id="panel_video_menu_entry"onclick="window.open\(\'(.*?)\',\'_self\'\)" onMouseOver="style.cursor=\'pointer\'">\s+.*src="(.*?)".*\s+<strong>(.*?)</strong>\s+<br />(.*?)\s*.*</p>'
-        for mymatch in re.findall(REGEXP, text, re.MULTILINE):
+        # Two pass approach
+        # First grab everything in "slider1", assuming that this is the relevant panel to display
+        FIRSTPASSEXT = "<div id='slider1'>(.*)</div>"
+        for mymatch in re.findall(FIRSTPASSEXT, text, re.MULTILINE):
+            firstPassText = mymatch
+        
+        EPISODEREGEXP = "<div id='gridshow'>.*?title=\"(.*?)\" href='(.*?)'.*?src='(.*?)'.*?<span id='gridcaption'>(.*?)</span>.*?id='griddate'>(.*?)</span>"
+        
+        for mymatch in re.findall(EPISODEREGEXP, firstPassText, re.MULTILINE):
+            
             # Default values
             description = 'None'
             link        = 'None'
             mp4URL      = 'None'
-
+           
             # ListItem properties
-            img   = mymatch[1]
-            datestr  = mymatch[2]
-            description = mymatch[3].strip()
+            img   = mymatch[2]
+            datestr  = mymatch[4]
+            description =  re.findall(".*[0-9].(.*)",mymatch[0].strip())
             
             # Look for the higher resolution image 
             img = img.replace('thumbnail.jpg','preview_vp.jpg')
-            
-            # Format the date
-            date_array = datestr.split()
-            if len(date_array) == 4:
-                month = date_array[2][:-1].lower()
-                if month.find('jan') > -1:
-                    month = 1
-                elif month.find('feb') > -1:
-                    month = 2
-                elif month.find('mar') > -1:
-                    month = 3
-                elif month.find('apr') > -1:
-                    month = 4
-                elif month.find('may') > -1:
-                    month = 5
-                elif month.find('jun') > -1:
-                    month = 6
-                elif month.find('jul') > -1:
-                    month = 7
-                elif month.find('aug') > -1:
-                    month = 8
-                elif month.find('sep') > -1:
-                    month = 9
-                elif month.find('oct') > -1:
-                    month = 10
-                elif month.find('nov') > -1:
-                    month = 11
-                elif month.find('dec') > -1:
-                    month = 12
-                else:
-                    month = 0
-                
-                if month > 0:
-                    datestr = "%02d-%02d-%s" % ( int(date_array[1].replace('th','').replace('st','').replace('nd','')), month, '2011')
-                    title = the_title
-                else:
-                    title = the_title + ' - ' + datestr
-                    datestr = date.today().strftime("%d-%m-%Y")
-                    
-            else:
-                title = the_title + ' - ' + datestr
-                datestr = date.today().strftime("%d-%m-%Y")
-                
+                           
             year = 2012
 
             # Load the URL for this episode
-            f2    = urllib2.urlopen(TV3_URL + mymatch[0], "age_ok=1")
+            f2    = urllib2.urlopen(TV3_URL + mymatch[1], "age_ok=1")
             text2 = f2.read()
 
             # Get name of the mp4 file
@@ -180,10 +144,10 @@ class TV3:
                     'Thumb'       : img,
                     'Fanart_Image': img,
                     'url'         : mp4URL,
-                    'Title'       : title,
+                    'Title'       : the_title,
                     'mode'        : MenuConstants.MODE_PLAYVIDEO,
-                    'Plot'        : description,
-                    'plotoutline' : title,
+                    'Plot'        : description[0],
+                    'plotoutline' : description[0],
                     'Date'        : datestr,
                     'Year'        : year,
                     'Studio'      : CHANNEL

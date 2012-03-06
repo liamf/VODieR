@@ -82,6 +82,8 @@ class AerTV(BrightcoveBaseChannel):
         stuff = f.read()
         f.close()        
         
+        print stuff
+        
         self.logout()
         
         playerJSON = S.loads(stuff[1:-1])        

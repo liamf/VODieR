@@ -91,9 +91,6 @@ class Anlar:
                 
 if __name__ == '__main__':
 
-#    TV3().generateShowsAndSave()
-#    exit(1)
-
     channels = Anlar().getMainMenu()
     
     for channel in channels:

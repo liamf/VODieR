@@ -211,13 +211,10 @@ class Util:
             return None
 
 if __name__ == '__main__':
-    #print KNOWN_SHOWS
     
     print Util().getSeriesDetailsByName('Home and Away')
     
     time.sleep(5)
-    #print Util().getSeriesDetailsByName('Castle')
-    #print Util().getSeriesDetailsByName('Casualty')
+
     print Util().getSeriesDetailsByName('Desperate Housewives')
     
-    #print KNOWN_SHOWS
