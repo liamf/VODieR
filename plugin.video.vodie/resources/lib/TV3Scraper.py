@@ -9,7 +9,7 @@
 
 import re
 import sys
-from BeautifulSoup import SoupStrainer, MinimalSoup as BeautifulSoup, BeautifulStoneSoup
+import BeautifulSoup
 import urllib, urllib2
 from TVSeriesUtil import Util
 import MenuConstants
@@ -18,10 +18,10 @@ import simplejson as S
 
 # Url Constants
 KNOWN_TV3_SHOWS_URL  = 'http://xbmc-vodie.googlecode.com/svn/trunk/plugin.video.vodie/xml/tv3shows.json'
-TV3_URL      = 'http://www.tv3.ie/'
-MAINURL      = TV3_URL + 'index.php'
+TV3_URL      = 'http://www.tv3.ie'
+MAINURL      = TV3_URL + '/index.php'
 
-EPISODE_URL  = TV3_URL + 'shows.php?request=%s'
+EPISODE_URL  = TV3_URL + '/shows.php?request=%s'
 
 # Channel Constants
 CHANNEL = 'TV3'
@@ -99,16 +99,21 @@ class TV3:
         for mymatch in re.findall(TITLEREGEXP, text, re.MULTILINE):
             the_title = mymatch.strip()
         
+        # This page is too random to parse with regex: there are some examples with newlines, some with no newlines, and so on
+        # Plus, there are loads of "hidden" episodes which we don't want to parse
+         
+        soup = BeautifulSoup.BeautifulSoup(text)
+        
+        divs = soup.findAll("div", {"id" : "slider1"})
+        
         # Two pass approach
         # First grab everything in "slider1", assuming that this is the relevant panel to display
-        FIRSTPASSEXT = "<div id='slider1'>(.*)</div>"
-        for mymatch in re.findall(FIRSTPASSEXT, text, re.MULTILINE):
-            firstPassText = mymatch
+		# Then parse that ...
+
         
-        EPISODEREGEXP = "<div id='gridshow'>.*?title=\"(.*?)\" href='(.*?)'.*?src='(.*?)'.*?<span id='gridcaption'>(.*?)</span>.*?id='griddate'>(.*?)</span>"
-        
-        for mymatch in re.findall(EPISODEREGEXP, firstPassText, re.MULTILINE):
-            
+        EPISODEREGEXP = "<div id=\"gridshow.*?\"><a target=\"_blank\".*?title=\"(.*?)\".*?href=\"(.*?)\".*?src=\"(.*?)\".*?<span id=\"gridcaption\">(.*?)</span>.*?id=\"griddate\">(.*?)</span>"
+                
+        for mymatch in re.findall(EPISODEREGEXP, str(divs[0]), re.MULTILINE):
             # Default values
             description = 'None'
             link        = 'None'
