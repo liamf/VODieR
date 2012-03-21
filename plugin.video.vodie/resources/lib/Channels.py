@@ -3,6 +3,7 @@
 """
     VODie
     kitesurfing@kitesurfing.ie
+    modified: jpearce
 """
 
 import re
@@ -85,6 +86,18 @@ class Channels:
             return TV3().getEpisodes(showID)
         elif channel == MagnetWebTvScraper.CHANNEL:
             return AerTV().getEpisodes(showID)
+
+# This is to allow an indirection on the url.  Right now, hacked - TODO: Make properly OO by adding this as a required method of each scraper
+# For the moment, we'll just call referenceURL on the TV3 scraper, otherwise return the passed url
+    def referenceURL(self, channel, url):
+        if channel == RTEScraper.CHANNEL:
+            return url
+        elif channel == TG4Scraper.CHANNEL:
+            return url
+        elif channel == TV3Scraper.CHANNEL:
+            return TV3().referenceURL(url)
+        elif channel == MagnetWebTvScraper.CHANNEL:
+            return url
 
     def getMenu(self, channel, menutype, name = None):
         if channel == RTEScraper.CHANNEL:
