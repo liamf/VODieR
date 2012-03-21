@@ -3,6 +3,7 @@
 """
     VODie
     kitesurfing@kitesurfing.ie
+    modified: jpearce
 """
 
 import sys
@@ -99,7 +100,8 @@ class UI:
         #add item to list
         ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=u, listitem=li, isFolder=isFolder)
 
-    def playVideo(self, details):
+    def playVideo(self, channel, details):
+
         # Access the video playlist
         objPL=xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
         objPL.clear()
@@ -110,7 +112,11 @@ class UI:
                                 iconImage = self.main.args.icon,
                                 thumbnailImage = self.main.args.icon)
             liz.setInfo( type = "Video", infoLabels=video)
-            objPL.add(video['url'], liz)
+
+            # Now that we're actually playing the video, ask the scraper to give us the video url
+	    url=Channels().referenceURL(channel, video['url']);
+            print "JP: Calling",url
+            objPL.add(url, liz)
 
         # Play the Playlist        
         xbmc.Player( xbmc.PLAYER_CORE_DVDPLAYER ).play(objPL)
@@ -145,6 +151,8 @@ class Main:
         self.getSettings()
         
         # Initialize convenience constants
+	
+	print "JP: Hello!"
 
         self.ADDON_ID = os.path.basename(os.getcwd())
         self.ADDON = xbmcaddon.Addon(id = self.ADDON_ID)
@@ -208,14 +216,13 @@ class Main:
         self.settings['include_ads'] = __settings__.getSetting('ads')
 
     def checkMode(self):
-        
         mode = self.args.mode
         if mode is None:
             UI().createMenu(Channels().getChannels())
 
         elif mode == MenuConstants.MODE_PLAYVIDEO:
             video = Channels().getVideoDetails(self.args.channel, self.args.url, (self.settings['include_ads'] == 'true'))
-            UI().playVideo(video)
+            UI().playVideo(self.args.channel, video)
             
         elif mode == MenuConstants.MODE_PLAYRADIO:
             UI().playRadio(self.args.name, self.args.url)
