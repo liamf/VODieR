@@ -26,10 +26,10 @@ if REMOTE_DBG:
 
 #plugin constants
 __plugin__  = "VODie"
-__author__  = "kitesurfing@kitesurfing.ie, liam.friel@gmail.com"
+__author__  = "kitesurfing@kitesurfing.ie, liam.friel@gmail.com, jpearce"
 __url__     = "http://code.google.com/p/xbmc-vodie/"
 __svn_url__ = "http://xbmc-vodie.googlecode.com/svn/trunk/"
-__version__ = "1.1.3i"
+__version__ = "1.1.3j"
 
 print "[PLUGIN] '%s: version %s' initialized!" % (__plugin__, __version__)
 
