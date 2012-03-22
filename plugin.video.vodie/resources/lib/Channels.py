@@ -84,7 +84,7 @@ class Channels:
             return TG4().getEpisodes(showID)
         elif channel == TV3Scraper.CHANNEL:
             return TV3().getEpisodes(showID)
-        elif channel == MagnetWebTvScraper.CHANNEL:
+        elif channel == AerTVScraper.CHANNEL:
             return AerTV().getEpisodes(showID)
 
 # This is to allow an indirection on the url.  Right now, hacked - TODO: Make properly OO by adding this as a required method of each scraper
@@ -96,7 +96,7 @@ class Channels:
             return url
         elif channel == TV3Scraper.CHANNEL:
             return TV3().referenceURL(url)
-        elif channel == MagnetWebTvScraper.CHANNEL:
+        elif channel == AerTVScraper.CHANNEL:
             return url
 
     def getMenu(self, channel, menutype, name = None):
