@@ -114,8 +114,7 @@ class UI:
             liz.setInfo( type = "Video", infoLabels=video)
 
             # Now that we're actually playing the video, ask the scraper to give us the video url
-	    url=Channels().referenceURL(channel, video['url']);
-            print "JP: Calling",url
+            url=Channels().referenceURL(channel, video['url']);
             objPL.add(url, liz)
 
         # Play the Playlist        
@@ -151,8 +150,6 @@ class Main:
         self.getSettings()
         
         # Initialize convenience constants
-	
-	print "JP: Hello!"
 
         self.ADDON_ID = os.path.basename(os.getcwd())
         self.ADDON = xbmcaddon.Addon(id = self.ADDON_ID)

@@ -10,7 +10,6 @@
 
 import re
 import sys
-#from BeautifulSoup import SoupStrainer, MinimalSoup as BeautifulSoup, BeautifulStoneSoup
 from BeautifulSoup import SoupStrainer, BeautifulSoup, BeautifulStoneSoup
 import urllib, urllib2
 from TVSeriesUtil import Util
@@ -20,11 +19,11 @@ import simplejson as S
 import datetime
 
 # Url Constants
-KNOWN_TV3_SHOWS_URL  = 'http://xbmc-vodie.googlecode.com/svn/trunk/plugin.video.vodie/xml/tv3shows.json'
-TV3_URL      = 'http://www.tv3.ie/'
-MAINURL      = TV3_URL + 'index.php'
+KNOWN_TV3_SHOWS_URL = 'http://xbmc-vodie.googlecode.com/svn/trunk/plugin.video.vodie/xml/tv3shows.json'
+TV3_URL = 'http://www.tv3.ie/'
+MAINURL = TV3_URL + 'index.php'
 
-EPISODE_URL  = TV3_URL + 'shows.php?request=%s'
+EPISODE_URL = TV3_URL + 'shows.php?request=%s'
 
 # Channel Constants
 CHANNEL = 'TV3'
@@ -32,9 +31,7 @@ TV3LOGO = 'http://www.tv3.ie/graphics/global/image_logo_tv3_new.png'
 
 class TV3:
     def __init__(self):
-	print "JP: We're here in init!"
         page = urllib2.urlopen(KNOWN_TV3_SHOWS_URL)
-        #page = open('../../xml/tv3shows.json', 'r')
         self.KNOWN_TV3_SHOWS = S.load(page)
 
     def getChannelDetail(self):
@@ -45,18 +42,17 @@ class TV3:
                 'Plot'     : 'TV3'
                 }
 
-    def getStringFor(self, parent, tagName, attrName = None, default = 'None'):
+    def getStringFor(self, parent, tagName, attrName=None, default='None'):
         if parent.find(tagName):
             if attrName is None:
                 return str(parent.find(tagName).string.strip())
             else:
                 return str(parent.find(tagName)[attrName])
         else:
-            print "Error: Cannot find tagName: %s in %s"%(tagName, entry)
+            print "Error: Cannot find tagName: %s in %s" % (tagName, entry)
             return default
 
     def getVideoDetails(self, url):
-	print "JP: getVideoDetails on ",url
         yield {'Channel'     : CHANNEL,
                'Title'       : CHANNEL,
                'Director'    : CHANNEL,
@@ -70,7 +66,7 @@ class TV3:
     def getMainMenu(self):
 
         # Load and read the URL
-        f    = urllib2.urlopen(MAINURL)
+        f = urllib2.urlopen(MAINURL)
         text = f.read()
         f.close()
 
@@ -100,33 +96,32 @@ class TV3:
         f.close()
        
         # Grab all gridshow divs in slider1
-	soup=BeautifulSoup(''.join(text));
-	slider1=soup.find('div', id='slider1')
+        soup = BeautifulSoup(''.join(text));
+        slider1 = soup.find('div', id='slider1')
 
         for mymatch in slider1.findAll('div', id='gridshow'):
             
             # Default values
             description = 'None'
-            link        = 'None'
-            mp4URL      = 'None'
+            link = 'None'
+            mp4URL = 'None'
            
             # ListItem properties
-            img   = mymatch.a.img['src']
-	    url   = mymatch.a['href']
-            datestr  = mymatch.find('span', id='griddate').string
-            the_title  = mymatch.find('span', id='gridcaption').string
-            description =  mymatch.a['title']
+            img = mymatch.a.img['src']
+            url = mymatch.a['href']
+            datestr = mymatch.find('span', id='griddate').string
+            the_title = mymatch.find('span', id='gridcaption').string
+            description = mymatch.a['title']
             
             # Look for the higher resolution image 
-            img = img.replace('thumbnail.jpg','preview_vp.jpg')
+            img = img.replace('thumbnail.jpg', 'preview_vp.jpg')
                            
             year = datetime.datetime.now().year
-
-            
+          
             yield {'Channel'      : CHANNEL,
                     'Thumb'       : img,
                     'Fanart_Image': img,
-                    'url'         : TV3_URL+url,
+                    'url'         : TV3_URL + url,
                     'Title'       : the_title,
                     'mode'        : MenuConstants.MODE_PLAYVIDEO,
                     'Plot'        : description[0],
@@ -138,43 +133,40 @@ class TV3:
 
     def convertHTML(self, text):
         if not text == '':
-            return BeautifulStoneSoup(text, 
-                       convertEntities=BeautifulStoneSoup.HTML_ENTITIES).contents[0].encode( "utf-8" )
+            return BeautifulStoneSoup(text,
+                       convertEntities=BeautifulStoneSoup.HTML_ENTITIES).contents[0].encode("utf-8")
         else:
             return 'None'
 
     def referenceURL(self, url):
-            # Load the URL for this episode
-            print "JP: referenceURL called with ",url
+        # Load the URL for this episode
+        page = urllib2.urlopen(url, "age_ok=1")
+        pageText = page.read()
+        page.close()
+        
+        # Get name of the mp4 file
+        link = ""
 
-            f2    = urllib2.urlopen(url, "age_ok=1")
-            text2 = f2.read()
+        for mymatch2 in re.findall('url: \"mp4:(.*?mp4)\"', pageText, re.MULTILINE):
+            link = mymatch2
 
-            # Get name of the mp4 file
-	    link=""
-
-            for mymatch2 in re.findall('url: \"mp4:(.*?mp4)\"', text2, re.MULTILINE):
+        if link == "":
+            for mymatch2 in re.findall('url: \"(.*?mp4)\"', pageText, re.MULTILINE):
                 link = mymatch2
-
-	    if link=="":
-		    for mymatch2 in re.findall('url: \"(.*?mp4)\"', text2, re.MULTILINE):
-			link = mymatch2
-
-	    print "JP: link is",link
            
-            # Figure out where we think it is, based on the rtmp URL
-            rtmpre = 'netConnectionUrl: \"rtmp://.*/(content.tv3.*)\"'
-            matches = re.findall(rtmpre, text2, re.MULTILINE)
-            # This way avoids issue where there are zero matches 
-	    rtmpLink=""
-            for match in matches:
-                rtmpLink = "http://" + match + link
+        # Figure out where we think it is, based on the rtmp URL
+        rtmpre = 'netConnectionUrl: \"rtmp://.*/(content.tv3.*)\"'
+        matches = re.findall(rtmpre, pageText, re.MULTILINE)
+            
+        # This way avoids issue where there are zero matches 
+        rtmpLink = ""
+        for match in matches:
+            rtmpLink = "http://" + match + link
 
 	    if rtmpLink != "":
-		print "JP: link adjusted to",rtmpLink 
-		link=rtmpLink
+		   link = rtmpLink
 
-            return link
+        return link
 
 
     def generateShowsAndSave(self):
@@ -204,12 +196,9 @@ class TV3:
         f.close()
 
 if __name__ == '__main__':
-#if 1 == 1:
-
     items = TV3().getMainMenu()
     
     for item in items:
-        print "Item is ",item
         episodes = TV3().getEpisodes(item['url'])
         for episode in episodes:
             print episode
