@@ -1,3 +1,6 @@
+[B] Version 1.1.3k[/B]
+- fix for RTE 2 HD in AerTV
+
 [B] Version 1.1.3g[/B]
 - fix for TV3 site redesign
 

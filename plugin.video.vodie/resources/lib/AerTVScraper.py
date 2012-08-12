@@ -42,7 +42,7 @@ CHANNEL = 'Aer TV'
 LOGOICON = 'http://www.aertv.ie/wp-content/themes/aertv/images/logo.png'
 
 # To work outside of Ireland
-FORWARDED_FOR_IP = '79.97.%d.%d' % (random.randint(0, 255), random.randint(0, 254)) 
+FORWARDED_FOR_IP = '46.7.%d.%d' % (random.randint(2, 254), random.randint(1, 254)) 
 
 class AerTV(BrightcoveBaseChannel):
         
@@ -144,6 +144,14 @@ class AerTV(BrightcoveBaseChannel):
         self.logout()
            
         for channelEntry in epgJSON['data']:
+            if channelEntry['channel']['title'] == 'RT' and channelEntry['channel']['slug'] == 'rte-two-hd':
+                   yield {'Channel' : CHANNEL,
+                          'Thumb'   : channelEntry['channel']['logo'].encode("utf-8"),
+                          'url'     : channelEntry['channel']['slug'].encode("utf-8"),
+                          'Title'   : "RTE Two HD".encode("utf-8"),
+                          'mode'    : MenuConstants.MODE_PLAYVIDEO
+                          }
+            else: 
                yield {'Channel' : CHANNEL,
                       'Thumb'   : channelEntry['channel']['logo'].encode("utf-8"),
                       'url'     : channelEntry['channel']['slug'].encode("utf-8"),
@@ -176,6 +184,7 @@ class AerTV(BrightcoveBaseChannel):
         return {
                 'rte-one' : 'RTE',
                 'rte-two' : 'RTE2',
+                'rte-two-hd' : 'RTE2HD',
                 'tv3' : 'TV3',
                 'tg4' : 'TG4Sec',
                 '3e' : '3E',
