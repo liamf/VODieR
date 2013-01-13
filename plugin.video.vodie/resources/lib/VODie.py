@@ -26,6 +26,7 @@ getLS = __settings__.getLocalizedString
 class updateArgs:
 
     def __init__(self, *args, **kwargs):
+        self.mode = None
         for key, value in kwargs.iteritems():
             if value == 'None':
                 kwargs[key] = None
