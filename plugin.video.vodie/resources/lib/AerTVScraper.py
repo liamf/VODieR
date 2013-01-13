@@ -31,7 +31,7 @@ except ImportError, e:
 
 # Player Constants
 RTMP_URL = 'rtmp://85.91.5.163:1935/'
-APP_STRING = 'videoId=%s&lineUpId=&pubId=%s&playerId=%s&affiliateId='
+APP_STRING = 'videoId=%s&lineUpId=&pubId=%s&playerId=%s'
 PAGEURL = 'http://www.aertv.ie'
 
 # URL Constants
@@ -101,7 +101,7 @@ class AerTV(BrightcoveBaseChannel):
         
         self.get_swf_url()
         
-        playpath="%smpegts.stream?%s" % (self.getTSQualifier(stub),qualifierString)
+        playpath="%s.stream?%s" % (self.getTSQualifier(stub),qualifierString)
               
         # Pity it's python 2.4 ... string formatting is a pain
         playerURL = '%s app=%s playpath=%s swfUrl=%s pageUrl=%s' % (url, appString, playpath, self.swf_url, PAGEURL)
@@ -161,7 +161,7 @@ class AerTV(BrightcoveBaseChannel):
                
     def makeOpenerAndRequest(self):        
         epochTimeMS = int(round(time.time() * 1000.0))
-        callbackToken =  "jQuery1610%s_%s" % ( random.randint(3000000, 90000000000), epochTimeMS)
+        callbackToken =  "jQuery1820%s_%s" % ( random.randint(3000000, 90000000000), epochTimeMS)
         
         # Change the User Agent, probably doesn't matter but pretend to be a Windows 7/64 machine running Chrome 17
         USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.46 Safari/535.11'
@@ -170,7 +170,7 @@ class AerTV(BrightcoveBaseChannel):
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
 
         req = urllib2.Request( MAIN_REQUEST_URL + callbackToken)
-        req.add_header('X_REQUESTED_WITH','XMLHttpRequest')
+        req.add_header('X-Requested-With','XMLHttpRequest')
         req.add_header('Content-type', 'application/x-www-form-urlencoded')
         req.add_header('Accept', 'text/javascript, application/javascript, application/ecmascript, application/x-ecmascript')
         req.add_header('User-Agent', USER_AGENT)
@@ -182,17 +182,17 @@ class AerTV(BrightcoveBaseChannel):
     # So for now, code the lookup here
     def getTSQualifier(self, stub): 
         return {
-                'rte-one' : 'RTE',
-                'rte-two' : 'RTE2',
-                'rte-two-hd' : 'RTE2HD',
-                'tv3' : 'TV3',
-                'tg4' : 'TG4Sec',
-                '3e' : '3E',
-                'rte-one1' : 'RTEplus1',
-                'rte-news-now' : 'RTENEWSNOW',
+                'rte-one' : 'RTEONE_v500',
+                'rte-two' : 'RTETWO_v500',
+                'rte-two-hd' : 'RTETWOHD_v1500',
+                'tv3' : 'TV3_v500',
+                'tg4' : 'TG4_v200',
+                '3e' : '3E_v500',
+                'rte-one1' : 'RTEPLUSONE_v500',
+                'rte-news-now' : 'RTENEWSNOW_v500',
                 'france24' : 'FRANCE24', 
                 'rt' : 'RUSSIATODAY', 
-                'rtejr' : 'RTEjunior'
+                'rtejr' : 'RTEJUNIOR_v500'
                 }.get(stub, "RTE")
                 
     def login(self):
