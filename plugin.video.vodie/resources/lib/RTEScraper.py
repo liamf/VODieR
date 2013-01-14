@@ -27,9 +27,7 @@ EPISODE = "http://feeds.rasset.ie/rteavgen/player/playlist?type=iptv1&showId=%s"
 # PROGRAM = "http://feeds.rasset.ie/rteavgen/player/programme/?id=%s"
     
 # URL Constants
-# KNOWN_RTE_SHOWS_URL  = 'http://xbmc-vodie.googlecode.com/svn/trunk/plugin.video.vodie/xml/rteshows.json'
 PROGRAMME_URL    = 'http://dj.rte.ie/vodfeeds/feedgenerator/programme/?id='
-EPISODE_URL      = "http://dj.rte.ie/vodfeeds/feedgenerator/videos/show/?id=%s"
 SHOW_BY_TYPE_URL = 'http://feeds.rasset.ie/rteavgen/player/%s/'
 LIVEURL          = 'http://dj.rte.ie/vodfeeds/feedgenerator/live/'
 FEATURES         = 'features'
