@@ -17,16 +17,24 @@ import simplejson as S
 
 # Player Constants
 CONFIGURL = 'http://www.rte.ie/player/config/config.xml'
-DEFAULTSWFURL = 'http://www.rte.ie/player/assets/player_456.swf'
-PAGEURL = 'http://www.rte.ie/player/'
+DEFAULTSWFURL = 'http://www.rte.ie/player/assets/player_458.swf'
+PAGEURL = 'http://www.rte.ie/player/ie/'
 
+# RTE site change: hacky way of parsing returned data
+# The VODie 2.x code from doctormo does this better, and it would be better for the VODie plugin to migrate to that way
+EPISODE = "http://feeds.rasset.ie/rteavgen/player/playlist?type=iptv1&showId=%s"
+
+# PROGRAM = "http://feeds.rasset.ie/rteavgen/player/programme/?id=%s"
+    
 # URL Constants
-KNOWN_RTE_SHOWS_URL  = 'http://xbmc-vodie.googlecode.com/svn/trunk/plugin.video.vodie/xml/rteshows.json'
+# KNOWN_RTE_SHOWS_URL  = 'http://xbmc-vodie.googlecode.com/svn/trunk/plugin.video.vodie/xml/rteshows.json'
 PROGRAMME_URL    = 'http://dj.rte.ie/vodfeeds/feedgenerator/programme/?id='
-SHOW_BY_TYPE_URL = 'http://dj.rte.ie/vodfeeds/feedgenerator/%s/'
+EPISODE_URL      = "http://dj.rte.ie/vodfeeds/feedgenerator/videos/show/?id=%s"
+SHOW_BY_TYPE_URL = 'http://feeds.rasset.ie/rteavgen/player/%s/'
+LIVEURL          = 'http://dj.rte.ie/vodfeeds/feedgenerator/live/'
 FEATURES         = 'features'
-LATEST           = 'latestfront'
-LASTCHANCE       = 'lastchancefront'
+LATEST           = 'latest'
+LASTCHANCE       = 'lastchance'
 GENRELIST        = 'genrelist'
 LIVE             = 'live'
 
@@ -82,14 +90,15 @@ class RTE:
     def __init__(self):
         # We'll try to keep this up to date automatically, but this is a good starting guess
         self.SWFURL = DEFAULTSWFURL
-        try:
-            page = urllib2.urlopen(KNOWN_RTE_SHOWS_URL)
-            self.KNOWN_RTE_SHOWS = S.load(page)
-        except:
-            self.KNOWN_RTE_SHOWS = {}
         
     def getShows(self,type, params=''):
-        page = urllib2.urlopen(SHOW_BY_TYPE_URL%(type) + params)
+        # Live show list comes from a different URL 
+        if type == LIVE:
+            url = LIVEURL
+        else:
+            url = SHOW_BY_TYPE_URL%(type) + params
+        page = urllib2.urlopen(url)
+		
         self.soup = BeautifulStoneSoup(page, selfClosingTags=['link','category','media:player','media:thumbnail'])
         page.close()
 
@@ -97,20 +106,8 @@ class RTE:
         for item in items:
             id = str(item.id.string).strip()
             title = str(item.title.string).strip()
-            
-            try:
-                keys = self.KNOWN_RTE_SHOWS[title].keys()
-                
-                if 'Poster' in keys:
-                    pic = self.KNOWN_RTE_SHOWS[title]['Poster']
-                elif 'Season' in keys:
-                    pic = self.KNOWN_RTE_SHOWS[title]['Season']
-                elif item.find('media:thumbnail'):
-                    pic = item.find('media:thumbnail')['url']
-                else:
-                    pic = LOGOICON
-            except:
-                pic = LOGOICON                    
+
+            pic = LOGOICON                    
 
             if type == "live":
                 # For "live" items, just yield when Now-next is "NOW"
@@ -244,13 +241,17 @@ class RTE:
                                    'url'         : result.contents[0].string }
 
     def getMainMenu(self):
-        return [LIVEMENU,
-                FEATMENU,
-                LTSTMENU,
+# For the moment, remove LIVE. RTMP URL for Live has changed apparently and no longer works
+#        return [LIVEMENU,
+#                FEATMENU,
+#                LTSTMENU,
+#                LASTMENU,
+#                ATOZMENU,
+#                CATYMENU] 
+        return [LTSTMENU,
                 LASTMENU,
                 ATOZMENU,
                 CATYMENU] 
-
 
     def getEpisodes(self, combinedShowID):
         
@@ -258,7 +259,7 @@ class RTE:
         # Split into "title" style id and URL
         splitString = re.findall('(.*)__(.*)',combinedShowID)
         titleShowID = str(splitString[0][0])
-        urlShowID = str(splitString[0][1])
+        showId = str(splitString[0][1]).split('=')[-1]
                
         page = urllib2.urlopen(PROGRAMME_URL + titleShowID)
         soup = BeautifulStoneSoup(page, selfClosingTags=['link','category','media:player','media:thumbnail'])
@@ -266,8 +267,9 @@ class RTE:
         
         items = soup.findAll('entry')
         if not items:
-            # OK, that didn't work.
-            # Just try the straight URL id
+            # That works for some things, but not this show ... 
+            # OK, that didn't work. Try using the ID to search for episodes
+            urlShowID = EPISODE%(showId)            
             page = urllib2.urlopen(urlShowID)
             soup = BeautifulStoneSoup(page, selfClosingTags=['link','category','media:player','media:thumbnail'])
             page.close()            
@@ -344,90 +346,8 @@ class RTE:
         else:
             for item in self.getMenuItems(type='az', params='?id=%s'%(letter)):
                 yield item
-
-    def generateShowsAndSave(self):
-        f = open('../../xml/rteshows.json', 'w')
-        for letter in 'H':
-            for show in self.getShows(type='az', params='?id=%s'%(letter)):
-                key = show['title']
-                try:
-                    showkeys = self.KNOWN_RTE_SHOWS[key].keys()
-                    
-                    print 'Updating ' + show['title']
-                    if not 'TVDBid' in showkeys or not 'IMDB_ID' in showkeys:
-                        print 'Getting TVDBID and details'
-                        if not 'TVDBName' in showkeys:
-                            details = Util().getSeriesDetailsByName(show['title'])
-                        else:
-                            details = Util().getSeriesDetailsByName(self.KNOWN_RTE_SHOWS[key]['TVDBName'])
-                            
-                        if not details is None:
-                            self.KNOWN_RTE_SHOWS[key]['TVDBbanner'] = details['banner']
-                            self.KNOWN_RTE_SHOWS[key]['TVDBid'] = details['id']
-                            self.KNOWN_RTE_SHOWS[key]['IMDB_ID'] = details['IMDB_ID']
-                    else:
-                        print 'Getting Posters'
-                        if not 'Fanart' in showkeys and not 'Poster' in showkeys:
-                            details = Util().getDetailsForSerieByID(self.KNOWN_RTE_SHOWS[key]['title'], self.KNOWN_RTE_SHOWS[key]['TVDBid'])
-                            if not details is None:
-                                det_keys = details.keys()
-                                if 'Fanart' in det_keys:
-                                    self.KNOWN_RTE_SHOWS[key]['Fanart'] = details['Fanart']
-                                if 'Poster' in det_keys:
-                                    self.KNOWN_RTE_SHOWS[key]['Poster'] = details['Poster']
-                                if 'Season' in det_keys:
-                                    self.KNOWN_RTE_SHOWS[key]['Season'] = details['Season']
-                    
-                except:
-                    print 'Adding ' + show['title']
-                    
-                    self.KNOWN_RTE_SHOWS[key] = {}
-                    self.KNOWN_RTE_SHOWS[key]['title'] = show['title']
-                    details = Util().getSeriesDetailsByName(show['title'])
-                    if not details is None:
-                        self.KNOWN_RTE_SHOWS[key]['TVDBbanner'] = details['banner']
-                        self.KNOWN_RTE_SHOWS[key]['TVDBid'] = details['id']
-    
-                        print 'Getting Posters'
-                        details = Util().getDetailsForSerieByID(self.KNOWN_RTE_SHOWS[key]['title'], self.KNOWN_RTE_SHOWS[key]['TVDBid'])
-                        if not details is None:
-                            det_keys = details.keys()
-                            if 'Fanart' in det_keys:
-                                self.KNOWN_RTE_SHOWS[key]['Fanart'] = details['Fanart']
-                            if 'Poster' in det_keys:
-                                self.KNOWN_RTE_SHOWS[key]['Poster'] = details['Poster']
-                            if 'Season' in det_keys:
-                                self.KNOWN_RTE_SHOWS[key]['Season'] = details['Season']
-
-        S.dump(self.KNOWN_RTE_SHOWS, f, indent=4)
-        f.close()
-        
+                        
 if __name__ == '__main__':
     # Test Main Menu
     print RTE().getMainMenu()
     
-    RTE().generateShowsAndSave()
-    
-    #for letter in RTEScrapper().RTESearchAtoZ():
-    #    print letter
-    #    for item in RTEScrapper().RTESearchAtoZ(letter['Title']):
-    #        print item
-
-    #for item in RTE().SearchAtoZ('C'):
-    #    print item
-
-    #for category in RTEScrapper().RTESearchByCategory():
-    #    print category
-    #    for item in RTEScrapper().RTESearchByCategory(urllib.quote(category['Title'])):
-    #        print item
-
-    # Test Types
-    #for type in [FEATURES, LASTCHANCE, LATEST]:
-    #    items = RTE().getMenuItems(type)
-    #    for item in items:
-    #        print item
-#            episodes = RTE().getEpisodes(urllib.quote(item['Title']))
-#            for episode in episodes:
-#                #print episode
-#                for detail in RTE().getVideoDetails(episode['url']):
-#                    print detail
